@@ -1,17 +1,12 @@
 const tmi = require('tmi.js');
 
-// Define configuration options
-const opts = {
-  identity: {
-    username: <BOT_USERNAME>,
-    password: <OAUTH_TOKEN>
-  },
-  channels: [
-    <CHANNEL_NAME>
-  ]
-};
+config_data = {}//LOAD JSON
+
+config_data = require('./config/config.json')
+
+var spice = 0
 // Create a client with our options
-const client = new tmi.client(opts);
+const client = new tmi.client(config_data);
 
 // Register our event handlers (defined below)
 client.on('message', onMessageHandler);
@@ -28,19 +23,16 @@ function onMessageHandler (target, context, msg, self) {
   const commandName = msg.trim();
 
   // If the command is known, let's execute it
-  if (commandName === '!dice') {
-    const num = rollDice();
-    client.say(target, `You rolled a ${num}`);
+  if (commandName.ToLowerCase() === '!spice') {
+    spice += 1;
+    client.say(target, `This rare spice is used as a flavoring for certain foods and often produces an eye-watering effect on the consumer. (Quantity: ${spice})`);
     console.log(`* Executed ${commandName} command`);
   } else {
     console.log(`* Unknown command ${commandName}`);
   }
 }
-// Function called when the "dice" command is issued
-function rollDice () {
-  const sides = 6;
-  return Math.floor(Math.random() * sides) + 1;
-}
+
+
 // Called every time the bot connects to Twitch chat
 function onConnectedHandler (addr, port) {
   console.log(`* Connected to ${addr}:${port}`);
