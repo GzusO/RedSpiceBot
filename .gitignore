@@ -2,3 +2,6 @@ Config/config.json
 /packages
 /RedSpiceBot/obj/Debug
 /.vs/RedSpiceBot/v15
+/.vs
+/RedSpiceBot/Config/config.json
+/RedSpiceBot/obj/Release
