@@ -1,1 +1,4 @@
 Config/config.json
+/packages
+/RedSpiceBot/obj/Debug
+/.vs/RedSpiceBot/v15
