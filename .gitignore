@@ -5,3 +5,4 @@ Config/config.json
 /.vs
 /RedSpiceBot/Config/config.json
 /RedSpiceBot/obj/Release
+/RedSpiceBot/bin/Debug
