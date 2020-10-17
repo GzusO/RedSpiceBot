@@ -1,0 +1,12 @@
+{
+  "identity": {
+    "username": "username",
+    "password": "password"
+  },
+  "channels": [
+    "channelname"
+  ],
+  "accessToken": "accessToken",
+  "clientID": "clientID",
+  "refreshToken": "refreshToken"
+}
