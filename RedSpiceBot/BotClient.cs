@@ -131,7 +131,6 @@ namespace RedSpiceBot
         {
             // SendTopics accepts an oauth optionally, which is necessary for some topics
             botPubSub.SendTopics(configInfo.accessToken);
-            Console.WriteLine($"Sent topic access token {configInfo.accessToken}.");
         }
 
         private void OnListenResponse(object sender, OnListenResponseArgs e)
