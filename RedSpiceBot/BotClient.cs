@@ -138,7 +138,7 @@ namespace RedSpiceBot
                     {
                         if (e.Command.ArgumentsAsList.Count != 1) { return; }
                         user = await UsernameToUser(e.Command.ArgumentsAsList[0]);
-                        DisplaySpice(user.Matches[0].Id, user.Matches[0].DisplayName, e.Command.ChatMessage.Channel);
+                        if (user.Matches.Length == 1) { DisplaySpice(user.Matches[0].Id, user.Matches[0].DisplayName, e.Command.ChatMessage.Channel); }
                     }
                     else
                     {
@@ -150,7 +150,8 @@ namespace RedSpiceBot
                     if (!e.Command.ChatMessage.IsModerator || e.Command.ArgumentsAsList.Count != 2) { return; } // Mod-only command to manually fix people's spice
                     Console.WriteLine("!ModSpice command received.");
                     user = await UsernameToUser(e.Command.ArgumentsAsList[0]);
-                    UpdateSpiceStorage(user.Matches[0].Id, user.Matches[0].DisplayName, Int32.Parse(e.Command.ArgumentsAsList[1]));
+                    if (!Int32.TryParse(e.Command.ArgumentsAsList[1], out int spiceChange)) { return; }
+                    if (user.Matches.Length == 1) { UpdateSpiceStorage(user.Matches[0].Id, user.Matches[0].DisplayName, spiceChange); }
                     break;
 
                 default:
