@@ -1,0 +1,322 @@
+﻿Adamantine Armor
+Animated Shield
+Armor of Invulnerability
+Armor of Resistance
+Armor of Vulnerability
+Armor of <NAME>
+Arrow-Catching Shield
+Demon Armor
+Dragon Scale Mail
+Dwarven Plate
+Elven Chain
+Glamoured Studded Leather
+Mithral Armor
+Plate Armor of Etherealness
+Shield of Missile Attraction
+Spellguard Shield
+Orb of Dragonkind
+Amulet of Health
+Amulet of Proof against Detection and Location
+Amulet of the Planes
+Amulet of <NAME>
+<NAME>'s Amulet
+Apparatus of the Crab
+Bag of Beans
+Bag of Devouring
+Bag of Holding
+Bag of Tricks
+<NAME>'s Bag
+Bead of Force
+<NAME>'s Bead
+Belt of Dwarvenkind
+Belt of Giant Strength
+Belt of <NAME>
+<NAME>'s Belt
+Boots of Elvenkind
+Boots of Levitation
+Boots of Speed
+Boots of Striding and Springing
+Boots of the Winterlands
+<NAME>'s Boots
+Bowl of Command Water Elementals
+<NAME>'s Bowl
+Bracers of Archery
+Bracers of Defense
+<NAME>'s Bracers
+Brazier of Commanding Fire Elementals
+Brooch of Shielding
+<NAME>'s Brooch
+Broom of Flying
+Candle of Invocation
+<NAME>'s Candle
+Cape of the Mountebank
+<NAME>'s Cape
+Carpet of Flying
+<NAME>'s Carpet
+Censer of Controlling Air Elementals
+Chime of Opening
+Chime of <NAME>
+<NAME>'s Chime
+Circlet of Blasting
+Circlet of <NAME>
+<NAME>'s Circlet
+Cloak of Arachnida
+Cloak of Displacement
+Cloak of Elvenkind
+Cloak of Protection
+Cloak of the Bat
+Cloak of the Manta Ray
+Cloak of <NAME>
+<NAME>'s Cloak
+Crystal Ball
+Cube of Force
+<NAME>'s Cube
+Cubic Gate
+Decanter of Endless Water
+Deck of Illusions
+Deck of Many Things
+<NAME>'s Deck
+Dimensional Shackles
+<NAME>'s Shackles
+Dust of Disappearance
+Dust of Dryness
+Dust of Sneezing and Choking
+<NAME>'s Dust
+Efficient Quiver
+<NAME>'s Quiver
+Efreeti Bottle
+<NAME>'s Bottle
+Elemental Gem
+<NAME>'s Gem
+Eversmoking Bottle
+Eyes of Charming
+Eyes of Minute Seeing
+Eyes of the Eagle
+Eyes of <NAME>
+<NAME>'s Eyes
+Feather Token
+<NAME>'s Token
+Token of <NAME>
+Figurine of Wondrous Power
+Figurine of <NAME>
+<NAME>'s Figurine
+Folding Boat
+Gauntlets of Ogre Power
+<NAME>'s Gauntlets
+Gem of Brightness
+Gem of Seeing
+Gem of <NAME>
+Gloves of Missile Snaring
+Gloves of Swimming and Climbing
+<NAME>'s Gloves
+Goggles of Night
+<NAME>'s Goggles
+Handy Haversack
+<NAME>'s Haversack
+Hat of Disguise
+<NAME>'s Hat
+Headband of Intellect
+<NAME>'s Headband
+Helm of Brilliance
+Helm of Comprehending Languages
+Helm of Telepathy
+Helm of Teleportation
+Helm of <NAME>
+<NAME>'s Helm
+Horn of Blasting
+Horn of Valhalla
+Horn of <NAME>
+<NAME>'s Horn
+Horseshoes of Speed
+Horseshoes of a Zephyr
+<NAME>'s Horseshoes
+Instant Fortress
+Ioun Stone
+Iron Bands of Binding
+Iron Flask
+<NAME>'s Flask
+Lantern of Revealing
+Mantle of Spell Resistance
+Manual of Bodily Health
+Manual of Gainful Exercise
+Manual of Golems
+Manual of Quickness of Action
+Mantle of <NAME>
+<NAME>'s Mantle
+<NAME>'s Manual
+Marvelous Pigments
+Medallion of Thoughts
+<NAME>'s Medallion
+Mirror of Life Trapping
+<NAME>'s Mirror
+Necklace of Adaption
+Necklace of Fireballs
+Necklace of Prayer Beads
+Necklace of <NAME>
+<NAME>'s Necklace
+Pearl of Power
+<NAME>'s Pearl
+Periapt of Health
+Periapt of Proof against Poison
+Periapt of Wound Closure
+Pipes of Haunting
+Pipes of the Sewers
+<NAME>'s Pipes
+Portable Hole
+Restorative Ointment
+<NAME>'s Ointment
+Ointment of <NAME>
+Robe of Eyes
+Robe of Scintillating Colors
+Robe of Stars
+Robe of Useful Items
+Robe of the Archmagi
+Rope of Climbing
+Rope of Entanglement
+<NAME>'s Robe
+Scarab of Protection
+Slippers of Spider Climbing
+<NAME>'s Slippers
+Sovereign Glue
+Sphere of Annihilation
+<NAME>'s Sphere
+Stone of Controlling Earth Elementals
+Stone of Good Luck (Luckstone)
+<NAME>'s Stone
+Talisman of Pure Good
+Talisman of Ultimate Evil
+Talisman of the Sphere
+Talisman of <NAME>
+<NAME>'s Talisman
+Tome of Clear Thought
+Tome of Leadership and Influence
+Tome of Understanding
+Tome of <NAME>
+<NAME>'s Tome
+Universal Solvent
+Well of Many Worlds
+Wind Fan
+Winged Boots
+Wings of Flying
+Oil of Etherealness
+Oil of Sharpness
+Oil of Slipperiness
+<NAME>'s Oil
+Philter of Love
+<NAME>'s Philter
+Potion of Animal Friendship
+Potion of Clairvoyance
+Potion of Climbing
+Potion of Diminution
+Potion of Flying
+Potion of Gaseous Form
+Potion of Giant Strength
+Potion of Growth
+Potion of Healing
+Potion of Heroism
+Potion of Invisibility
+Potion of Mind Reading
+Potion of Poison
+Potion of Resistance
+Potion of Speed
+Potion of Water Breathing
+Potion of <NAME>
+<NAME>'s Potion
+Ring of Animal Influence
+Ring of Djinni
+Ring of Elemental Command
+Ring of Evasion
+Ring of Feather Falling
+Ring of Free Action
+Ring of Invisibility
+Ring of Jumping
+Ring of Mind Shielding
+Ring of Protection
+Ring of Regeneration
+Ring of Resistance
+Ring of Shooting Stars
+Ring of Spell Storing
+Ring of Spell Turning
+Ring of Swimming
+Ring of Telekinesis
+Ring of Three Wishes
+Ring of Warmth
+Ring of Water Walking
+Ring of X-ray Vision
+Ring of the Ram
+Ring of <NAME>
+<NAME>'s Ring
+Immovable Rod
+<NAME>'s Rod
+Rod of Absorption
+Rod of Alertness
+Rod of Lordly Might
+Rod of Rulership
+Rod of Security
+Staff of Charming
+Staff of Fire
+Staff of Frost
+Staff of Healing
+Staff of Power
+Staff of Striking
+Staff of Swarming Insects
+Staff of Thunder and Lightning
+Staff of Withering
+Staff of the Magi
+Staff of the Python
+Staff of the Woodlands
+Staff of <NAME>
+<NAME>'s Staff
+Wand of Binding
+Wand of Enemy Detection
+Wand of Fear
+Wand of Fireballs
+Wand of Lightning Bolts
+Wand of Magic Detection
+Wand of Magic Missiles
+Wand of Paralysis
+Wand of Polymorph
+Wand of Secrets
+Wand of Web
+Wand of Wonder
+Wand of the War Mage
+Wand of <NAME>
+<NAME>'s Wand
+Arrow of Slaying
+Berserker Axe
+Axe of <NAME>
+<NAME>'s Axe
+Dagger of Venom
+Dancing Sword
+Sword of <NAME>
+<NAME>'s Sword
+Defender
+Dragon Slayer
+<NAME> Slayer
+Dwarven Thrower
+Flame Tongue
+Frost Brand
+<NAME> Brand
+Giant Slayer
+Hammer of Thunderbolts
+Hammer of <NAME>
+<NAME>'s Hammer
+Holy Avenger
+Javelin of Lightning
+Luck Blade
+Mace of Disruption
+Mace of Smiting
+Mace of Terror
+Mace of <NAME>
+Name's <NAME>
+Nine Lives Stealer
+Oathbow
+Scimitar of Speed
+Sun Blade
+Sword of Life Stealing
+Sword of Sharpness
+Sword of Wounding
+Trident of Fish Command
+<NAME>'s Trident
+Vicious Weapon
+Vorpal Sword

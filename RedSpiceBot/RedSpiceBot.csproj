@@ -119,6 +119,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BotClient.cs" />
+    <Compile Include="NameGenerator\Delegates.cs" />
+    <Compile Include="NameGenerator\FrequencyMap.cs" />
+    <Compile Include="NameGenerator\HashList.cs" />
+    <Compile Include="NameGenerator\Map.cs" />
+    <Compile Include="NameGenerator\MarkovChainMap.cs" />
+    <Compile Include="NameGenerator\MarkovChainMapBuilder.cs" />
+    <Compile Include="NameGenerator\MarkovChainsNameGenerator.cs" />
+    <Compile Include="NameGenerator\MarkovChainStringMapBuilder.cs" />
+    <Compile Include="NameGenerator\Position.cs" />
+    <Compile Include="NameGenerator\Sieve.cs" />
+    <Compile Include="NameGenerator\StateFrequency.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -127,6 +138,10 @@
     <None Include="Config\config.json" />
     <None Include="packages.config" />
     <None Include="SpiceStorage\storage.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="NameGenerator\Sources\artifacts.txt" />
+    <Content Include="NameGenerator\Sources\names.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

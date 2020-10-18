@@ -16,6 +16,7 @@ using TwitchLib.Api.Helix.Models.Users;
 using TwitchLib.Api.V5.Models.Subscriptions;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using RedSpiceBot.NameGenerator;
 
 namespace RedSpiceBot
 {
@@ -37,6 +38,9 @@ namespace RedSpiceBot
         private TwitchPubSub botPubSub;
         private static TwitchAPI botAPI;
         private ConfigInfo configInfo;
+        private List<string> curArtifacts;
+
+        private const int artifactsToGenerate = 10;
 
         #region Chat Strings
         private const string SpiceBotReply = "Buy !RedSpice with channel points! " +
@@ -96,6 +100,26 @@ namespace RedSpiceBot
             botAPI = new TwitchAPI();
             botAPI.Settings.ClientId = configInfo.clientID;
             botAPI.Settings.AccessToken = configInfo.accessToken;
+
+            // Set up the artifacts generator and generate some artifacts
+            MarkovChainsNameGenerator generator = new MarkovChainsNameGenerator();
+            generator.TrainMapBuilder(@"../../NameGenerator/Sources/names.txt");
+            IEnumerable<string> artifacts = generator.GetPhrases(artifactsToGenerate);
+            curArtifacts = new List<string>();
+            Console.WriteLine("Todays artifacts:");
+            foreach (string artifact in artifacts)
+            {
+                int index;
+                string curArtifact = artifact;
+                // Replace all instance of <NAME> with a generated name
+                while ((index = curArtifact.IndexOf("<NAME>")) != -1)
+                {
+                    curArtifact = curArtifact.Remove(index, "<NAME>".Length);
+                    curArtifact = curArtifact.Insert(index, generator.GetName());
+                }
+                curArtifacts.Add(curArtifact);
+                Console.WriteLine(curArtifact);
+            }
         }
 
         #region Bot Event Handlers
@@ -291,6 +315,7 @@ namespace RedSpiceBot
                     UserStorage newStorage = new UserStorage();
                     newStorage.spice = spiceChange;
                     newStorage.displayName = userDisplay;
+                    newStorage.artifacts = new List<string>();
                     storage.Add(userID, newStorage);
                     isLegal = true;
                 }
@@ -342,7 +367,7 @@ namespace RedSpiceBot
     {
         public string displayName; // Track the users display name here cause why not
         public int spice;
-        public string[] artifacts;
+        public List<string> artifacts;
     }
     #endregion
 }
