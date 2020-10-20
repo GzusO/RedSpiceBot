@@ -37,7 +37,8 @@ namespace RedSpiceBot
         private TwitchPubSub botPubSub;
         private static TwitchAPI botAPI;
         private ConfigInfo configInfo;
-
+        private Dictionary<string, string> chatCommands;
+        private const string commandDataPath = @"../../SpiceStorage/commands.json";
         #region Chat Strings
         private const string SpiceBotReply = "Buy !RedSpice with channel points! " +
                         "Check your red spice stores with !MySpice. " +
@@ -53,6 +54,7 @@ namespace RedSpiceBot
         {
             // Get connection info from config.json and initialize channels
             configInfo = LoadInfo();
+            chatCommands = ChatCommand.LoadFromJson(commandDataPath);
             ConnectionCredentials credentials = new ConnectionCredentials(configInfo.identity.username, configInfo.identity.password);
             var clientOptions = new ClientOptions
             {
@@ -118,7 +120,7 @@ namespace RedSpiceBot
         private async void OnChatCommandReceived(object sender, OnChatCommandReceivedArgs e)
         {
             TwitchLib.Api.V5.Models.Users.Users user;
-
+            string message = "";
             switch (e.Command.CommandText.ToLower())
             {
                 case "spicebot":
@@ -153,9 +155,40 @@ namespace RedSpiceBot
                     if (!Int32.TryParse(e.Command.ArgumentsAsList[1], out int spiceChange)) { return; }
                     if (user.Matches.Length == 1) { UpdateSpiceStorage(user.Matches[0].Id, user.Matches[0].DisplayName, spiceChange); }
                     break;
-
+                case "addcommand":
+                    if (!(e.Command.ChatMessage.IsModerator || e.Command.ChatMessage.IsBroadcaster) || e.Command.ArgumentsAsList.Count <= 1)
+                        return;
+                    if (chatCommands.ContainsKey(e.Command.ArgumentsAsList[0]))
+                        return;
+                    chatCommands.Add(e.Command.ArgumentsAsList[0], e.Command.ArgumentsAsString.Substring(e.Command.ArgumentsAsString.IndexOf(' ')));
+                    ChatCommand.SaveToJson(commandDataPath, chatCommands);
+                    break;
+                case "removecommand":
+                    if (!(e.Command.ChatMessage.IsModerator || e.Command.ChatMessage.IsBroadcaster) || e.Command.ArgumentsAsList.Count != 1)
+                        return;
+                    chatCommands.Remove(e.Command.ArgumentsAsList[0]);
+                    ChatCommand.SaveToJson(commandDataPath, chatCommands);
+                    break;
+                case "updatecommand":
+                    if (!(e.Command.ChatMessage.IsModerator || e.Command.ChatMessage.IsBroadcaster) || e.Command.ArgumentsAsList.Count <= 1)
+                        return;
+                    if (chatCommands.ContainsKey(e.Command.ArgumentsAsList[0]))
+                        chatCommands[e.Command.ArgumentsAsList[0]] = e.Command.ArgumentsAsString.Substring(e.Command.ArgumentsAsString.IndexOf(' '));
+                    ChatCommand.SaveToJson(commandDataPath, chatCommands);
+                    break;
+                case "commands":
+                    message = "Chat Commands\n";
+                    foreach( string key in chatCommands.Keys)
+                    {
+                        message += $"!{key}\n";
+                    }
+                    botClient.SendMessage(e.Command.ChatMessage.Channel, message);
+                    break;
                 default:
-                    Console.WriteLine($"Received unknown command: {e.Command.CommandText}, from {e.Command.ChatMessage.Username}.");
+                    if (chatCommands.TryGetValue(e.Command.CommandText.ToLower(), out message))
+                        botClient.SendMessage(e.Command.ChatMessage.Channel, message);
+                    else
+                        Console.WriteLine($"Received unknown command: {e.Command.CommandText}, from {e.Command.ChatMessage.Username}.");
                     break;
             }
         }
