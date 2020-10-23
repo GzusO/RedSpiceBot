@@ -38,7 +38,9 @@ namespace RedSpiceBot
         private static TwitchAPI botAPI;
         private ConfigInfo configInfo;
         private Dictionary<string, string> chatCommands;
-        private const string commandDataPath = @"../../SpiceStorage/commands.json";
+        private const string commandDataPath = @"./SpiceStorage/commands.json";
+        private const string configDataPath = @"./Config/config.json";
+        private const string userDataPath = @"./SpiceStorage/storage.json";
         #region Chat Strings
         private const string SpiceBotReply = "Buy !RedSpice with channel points! " +
                         "Check your red spice stores with !MySpice. " +
@@ -53,7 +55,7 @@ namespace RedSpiceBot
         public Bot()
         {
             // Get connection info from config.json and initialize channels
-            configInfo = LoadInfo();
+            configInfo = ConfigInfo.LoadInfo(configDataPath);
             chatCommands = ChatCommand.LoadFromJson(commandDataPath);
             ConnectionCredentials credentials = new ConnectionCredentials(configInfo.identity.username, configInfo.identity.password);
             var clientOptions = new ClientOptions
@@ -178,7 +180,7 @@ namespace RedSpiceBot
                     break;
                 case "commands":
                     message = "Chat Commands\n";
-                    foreach( string key in chatCommands.Keys)
+                    foreach (string key in chatCommands.Keys)
                     {
                         message += $"!{key}\n";
                     }
@@ -262,33 +264,6 @@ namespace RedSpiceBot
         }
         #endregion
 
-        #region Helpers
-        /*
-         * Loads the bot's authentication info
-         */
-        private ConfigInfo LoadInfo()
-        {
-            using (StreamReader r = new StreamReader("../../Config/config.json"))
-            {
-                string config = r.ReadToEnd();
-                r.Close();
-                return JsonConvert.DeserializeObject<ConfigInfo>(config);
-            }
-        }
-
-        /*
-         * Loads the spice storage JSON file
-         */
-        private Dictionary<string, UserStorage> LoadStorage()
-        {
-            using (StreamReader r = new StreamReader("../../SpiceStorage/storage.json"))
-            {
-                string storageString = r.ReadToEnd();
-                r.Close();
-                return JsonConvert.DeserializeObject<Dictionary<string, UserStorage>>(storageString);
-            }
-        }
-
         /*
          * Updates a users spice amount, returning whether or not the change is legal
          * Only updates the spice count on a legal request
@@ -297,7 +272,7 @@ namespace RedSpiceBot
         private bool UpdateSpiceStorage(string userID, string userDisplay, int spiceChange)
         {
             bool isLegal = false;
-            Dictionary<string, UserStorage> storage = LoadStorage();
+            Dictionary<string, UserStorage> storage = UserStorage.LoadStorage(userDataPath);
 
             // If the storage doesn't exist at all yet, initialize it
             if (storage == null)
@@ -331,7 +306,7 @@ namespace RedSpiceBot
 
             // Save the changes back to the spice storage
             // Probably dangerous to do this cause race conditions, should look into a way to prevent that
-            File.WriteAllText(@"../../SpiceStorage/storage.json", JsonConvert.SerializeObject(storage));
+            File.WriteAllText(userDataPath, JsonConvert.SerializeObject(storage));
 
             return isLegal;
         }
@@ -339,7 +314,7 @@ namespace RedSpiceBot
         private void DisplaySpice(string userID, string userDisplay, string channel)
         {
             // Load storage and respond with how much spice the user has, if they have an account
-            Dictionary<string, UserStorage> storage = LoadStorage();
+            Dictionary<string, UserStorage> storage = UserStorage.LoadStorage(userDataPath);
             if (storage.TryGetValue(userID, out UserStorage userStorage))
             {
                 botClient.SendMessage(channel, string.Format(MySpiceReply, userDisplay, userStorage.spice));
@@ -349,33 +324,5 @@ namespace RedSpiceBot
                 botClient.SendMessage(channel, string.Format(NoStorageReply, userDisplay));
             }
         }
-        #endregion
     }
-
-    #region Config Classes
-    public class ConfigInfo
-    {
-        public ConfigIdentity identity;
-        public string[] channels;
-        public string accessToken;
-        public string clientID;
-        public string refreshToken;
-    }
-
-    public class ConfigIdentity
-    {
-        public string username;
-        public string password;
-    }
-    #endregion
-
-    #region Storage Classes
-    // Storage obect exists as a login-keyed dictionary of UserStorage objects
-    public class UserStorage
-    {
-        public string displayName; // Track the users display name here cause why not
-        public int spice;
-        public string[] artifacts;
-    }
-    #endregion
 }
