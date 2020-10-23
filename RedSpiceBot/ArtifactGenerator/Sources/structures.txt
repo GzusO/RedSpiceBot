@@ -1,0 +1,24 @@
+﻿% Uses a character token system to determine string structure
+% n = Name (generated randomly)
+% s = Name's (generated randomly)
+% u = Noun (randomly chosen from a list)
+% a = Adjective (randomly chosen from a list)
+% o = "of"
+% t = "the"
+u
+su
+au
+tu
+tau
+sau
+uoa
+uon
+tuoa
+tuon
+nta
+notu
+suoa
+uotu
+tuotu
+sauoa
+sanotu

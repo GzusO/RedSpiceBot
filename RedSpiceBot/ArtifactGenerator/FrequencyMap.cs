@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace RedSpiceBot.NameGenerator
+namespace RedSpiceBot.ArtifactGenerator
 {
 	/// <summary>
 	/// Implements	the <see cref="Map{T, StateFrequency}"/> which is used for handling Markov Chain maps.

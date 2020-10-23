@@ -6,7 +6,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace RedSpiceBot.NameGenerator
+namespace RedSpiceBot.ArtifactGenerator
 {
 	/// <summary>
 	/// Defines a method which is able to join a given number of discrete values into a new one.

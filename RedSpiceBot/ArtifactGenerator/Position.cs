@@ -3,7 +3,7 @@
 // This source code is released under the Code Project Open License 1.02.
 // Please see http://www.codeproject.com/info/cpol10.aspx
 
-namespace RedSpiceBot.NameGenerator
+namespace RedSpiceBot.ArtifactGenerator
 {
 	/// <summary>
 	/// Represents the distinct positions any element can be in a collection.

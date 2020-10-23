@@ -5,7 +5,7 @@
 
 using System;
 
-namespace RedSpiceBot.NameGenerator
+namespace RedSpiceBot.ArtifactGenerator
 {
 	/// <summary>
 	/// Implements an object for handling positional (<see cref="Position"/>) frequencies.

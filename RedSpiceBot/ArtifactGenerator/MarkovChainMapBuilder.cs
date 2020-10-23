@@ -6,7 +6,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace RedSpiceBot.NameGenerator
+namespace RedSpiceBot.ArtifactGenerator
 {
 	/// <summary>
 	/// Implements an object which is able to build a <see cref="MarkovChainMap{T}"/> when provided with a list of

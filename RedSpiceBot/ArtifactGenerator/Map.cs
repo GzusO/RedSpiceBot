@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace RedSpiceBot.NameGenerator
+namespace RedSpiceBot.ArtifactGenerator
 {
 	/// <summary>
 	/// Defines a <see cref="Dictionary{TKey, TValue}"/> providing an <see cref="EventuallyAdd(TKey, TValue)"/> method,  

@@ -16,7 +16,7 @@ using TwitchLib.Api.Helix.Models.Users;
 using TwitchLib.Api.V5.Models.Subscriptions;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
-using RedSpiceBot.NameGenerator;
+using RedSpiceBot.ArtifactGenerator;
 
 namespace RedSpiceBot
 {
@@ -38,9 +38,7 @@ namespace RedSpiceBot
         private TwitchPubSub botPubSub;
         private static TwitchAPI botAPI;
         private ConfigInfo configInfo;
-        private List<string> curArtifacts;
-
-        private const int artifactsToGenerate = 10;
+        private List<Artifact> curArtifacts;
 
         #region Chat Strings
         private const string SpiceBotReply = "Buy !RedSpice with channel points! " +
@@ -79,7 +77,7 @@ namespace RedSpiceBot
             botClient.OnConnected += OnConnected;
             botClient.OnChatCommandReceived += OnChatCommandReceived;
 
-            botClient.Connect();
+            //botClient.Connect();
 
             // PubSub setup
             botPubSub = new TwitchPubSub();
@@ -94,31 +92,25 @@ namespace RedSpiceBot
             botPubSub.ListenToVideoPlayback("Diadonic");
             botPubSub.ListenToRewards("24384880");
 
-            botPubSub.Connect();
+            //botPubSub.Connect();
 
             // API setup
             botAPI = new TwitchAPI();
             botAPI.Settings.ClientId = configInfo.clientID;
             botAPI.Settings.AccessToken = configInfo.accessToken;
 
-            // Set up the artifacts generator and generate some artifacts
-            MarkovChainsNameGenerator generator = new MarkovChainsNameGenerator();
-            generator.TrainMapBuilder(@"../../NameGenerator/Sources/names.txt");
-            IEnumerable<string> artifacts = generator.GetPhrases(artifactsToGenerate);
-            curArtifacts = new List<string>();
-            Console.WriteLine("Todays artifacts:");
-            foreach (string artifact in artifacts)
+            // Set up the artifacts generator and unique name generator
+            MarkovChainsNameGenerator nameGenerator = new MarkovChainsNameGenerator(minLength: 3, maxLength: 7);
+            nameGenerator.TrainMapBuilder(@"../../ArtifactGenerator/Sources/names.txt");
+            MarkovChainsNameGenerator artifactGenerator = new MarkovChainsNameGenerator(minLength: 2, maxLength: 10, capitalize: false, skipWhitespace: false);
+            artifactGenerator.TrainMapBuilder(@"../../ArtifactGenerator/Sources/structures.txt");
+
+            // Get a bunch of artifact strings and send them to the parser
+            IEnumerable<string> artifacts = artifactGenerator.GetNames(100); // Generate a bunch of artifacts, the parser will trim it down
+            curArtifacts = ArtifactParser.ParseArtifacts(new List<string>(artifacts));
+            foreach (Artifact art in curArtifacts)
             {
-                int index;
-                string curArtifact = artifact;
-                // Replace all instance of <NAME> with a generated name
-                while ((index = curArtifact.IndexOf("<NAME>")) != -1)
-                {
-                    curArtifact = curArtifact.Remove(index, "<NAME>".Length);
-                    curArtifact = curArtifact.Insert(index, generator.GetName());
-                }
-                curArtifacts.Add(curArtifact);
-                Console.WriteLine(curArtifact);
+                Console.WriteLine(Artifact.ToString(art));
             }
         }
 

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-namespace RedSpiceBot.NameGenerator
+namespace RedSpiceBot.ArtifactGenerator
 {
 	/// <summary>
 	/// Implements an object which uses <see cref="MarkovChainMap{T}"/> of strings to generate random words or names.
@@ -327,39 +327,6 @@ namespace RedSpiceBot.NameGenerator
 		}
 
 		/// <summary>
-		/// Outputs specified number of random phrases using internally created <see cref="MarkovChainMap{T}"/>.
-		/// </summary>
-		/// <param name="count">Number of phrases to output.</param>
-		/// <returns>A list of <paramref name="count"/> random phrases.</returns>
-		/// <exception cref="ArgumentNullException">Internal <see cref="MarkovChainMap{T}"/> is null. Please call
-		/// <see cref="TrainMapBuilder(string, string)"/> method before using <see cref="GetNames(int)"/> method.
-		/// </exception>
-		public IEnumerable<string> GetPhrases(int count)
-		{
-			if (count < 1)
-			{
-				yield break;
-			}
-			for (int i = 0; i < count; i++)
-			{
-				yield return GetPhrase();
-			}
-		}
-
-		/// <summary>
-		/// Outputs a random phrase using internally created <see cref="MarkovChainMap{T}"/>.
-		/// </summary>
-		/// <returns></returns>
-		/// <exception cref="ArgumentNullException">Internal <see cref="MarkovChainMap{T}"/> is null. Please call
-		/// <see cref="TrainMapBuilder(string, string)"/> method before using <see cref="GetName"/> method.</exception>
-		public string GetPhrase()
-		{
-			// TODO: Make this work on words isntead of characters
-			// For each phrase we return we want to leave the <NAME> tokens in, replacing those is up to the caller
-			return "<NAME>'s Artifact of <NAME>";
-		}
-
-		/// <summary>
 		/// Outputs specified number of random names using internally created <see cref="MarkovChainMap{T}"/>.
 		/// </summary>
 		/// <param name="count">Number of names to output.</param>
@@ -386,7 +353,7 @@ namespace RedSpiceBot.NameGenerator
 		/// <param name="path">Path to the file containing the samples.</param>
 		/// <param name="commentSpecifier">An eventual comment specifier. Lines in the file beginning with this value
 		/// will not be parsed.</param>
-		public void TrainMapBuilder(string path, string commentSpecifier = null)
+		public void TrainMapBuilder(string path, string commentSpecifier = "%")
 		{
 			_map = _mapBuilder.TrainFromFile(path, commentSpecifier);
 		}

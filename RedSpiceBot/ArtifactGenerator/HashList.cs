@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RedSpiceBot.NameGenerator
+namespace RedSpiceBot.ArtifactGenerator
 {
 	/// <summary>
 	/// Implements a mixed functionality between a <see cref="List{T}"/> and a <see cref="HashSet{T}"/>. Useful when

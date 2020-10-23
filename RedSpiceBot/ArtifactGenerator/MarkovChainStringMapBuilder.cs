@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace RedSpiceBot.NameGenerator
+namespace RedSpiceBot.ArtifactGenerator
 {
 	/// <summary>
 	/// Implements a <see cref="MarkovChainMap{T}"/> which will operate on strings.
@@ -92,7 +92,7 @@ namespace RedSpiceBot.NameGenerator
 		/// <para>A <see cref="StreamReader"/> will be used, which will read the text file line-by-line. Lines beginning
 		/// with <paramref name="commentSpecifier"/> will not be used, as well as empty and whitespace lines.</para>
 		/// </remarks>
-		public MarkovChainMap<string> TrainFromFile(string path, string commentSpecifier = null)
+		public MarkovChainMap<string> TrainFromFile(string path, string commentSpecifier = "%")
 		{
 			commentSpecifier = commentSpecifier ?? string.Empty;
 			List<string> values = new List<string>();

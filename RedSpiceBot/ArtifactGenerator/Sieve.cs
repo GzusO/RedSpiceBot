@@ -7,7 +7,7 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace RedSpiceBot.NameGenerator
+namespace RedSpiceBot.ArtifactGenerator
 {
 	/// <summary>
 	/// Implements an object which, given specified <see cref="FrequencyMap{T}"/> and <see cref="Position"/>, is able to

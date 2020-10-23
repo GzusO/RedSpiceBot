@@ -118,18 +118,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Artifact.cs" />
+    <Compile Include="ArtifactGenerator\MarkovChainsArtifactGenerator.cs" />
+    <Compile Include="ArtifactParser.cs" />
     <Compile Include="BotClient.cs" />
-    <Compile Include="NameGenerator\Delegates.cs" />
-    <Compile Include="NameGenerator\FrequencyMap.cs" />
-    <Compile Include="NameGenerator\HashList.cs" />
-    <Compile Include="NameGenerator\Map.cs" />
-    <Compile Include="NameGenerator\MarkovChainMap.cs" />
-    <Compile Include="NameGenerator\MarkovChainMapBuilder.cs" />
-    <Compile Include="NameGenerator\MarkovChainsNameGenerator.cs" />
-    <Compile Include="NameGenerator\MarkovChainStringMapBuilder.cs" />
-    <Compile Include="NameGenerator\Position.cs" />
-    <Compile Include="NameGenerator\Sieve.cs" />
-    <Compile Include="NameGenerator\StateFrequency.cs" />
+    <Compile Include="ArtifactGenerator\Delegates.cs" />
+    <Compile Include="ArtifactGenerator\FrequencyMap.cs" />
+    <Compile Include="ArtifactGenerator\HashList.cs" />
+    <Compile Include="ArtifactGenerator\Map.cs" />
+    <Compile Include="ArtifactGenerator\MarkovChainMap.cs" />
+    <Compile Include="ArtifactGenerator\MarkovChainMapBuilder.cs" />
+    <Compile Include="ArtifactGenerator\MarkovChainsNameGenerator.cs" />
+    <Compile Include="ArtifactGenerator\MarkovChainStringMapBuilder.cs" />
+    <Compile Include="ArtifactGenerator\Position.cs" />
+    <Compile Include="ArtifactGenerator\Sieve.cs" />
+    <Compile Include="ArtifactGenerator\StateFrequency.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -140,8 +143,9 @@
     <None Include="SpiceStorage\storage.json" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="NameGenerator\Sources\artifacts.txt" />
-    <Content Include="NameGenerator\Sources\names.txt" />
+    <Content Include="ArtifactGenerator\Sources\artifacts.txt" />
+    <Content Include="ArtifactGenerator\Sources\names.txt" />
+    <Content Include="ArtifactGenerator\Sources\structures.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
