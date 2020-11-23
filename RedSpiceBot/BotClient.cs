@@ -83,7 +83,7 @@ namespace RedSpiceBot
             botClient.OnConnected += OnConnected;
             botClient.OnChatCommandReceived += OnChatCommandReceived;
 
-            //botClient.Connect();
+            botClient.Connect();
 
             // PubSub setup
             botPubSub = new TwitchPubSub();
@@ -98,7 +98,7 @@ namespace RedSpiceBot
             botPubSub.ListenToVideoPlayback("Diadonic");
             botPubSub.ListenToRewards("24384880");
 
-            //botPubSub.Connect();
+            botPubSub.Connect();
 
             // API setup
             botAPI = new TwitchAPI();
@@ -306,7 +306,7 @@ namespace RedSpiceBot
                     UserStorage newStorage = new UserStorage();
                     newStorage.spice = spiceChange;
                     newStorage.displayName = userDisplay;
-                    newStorage.artifacts = new List<string>();
+                    newStorage.artifacts = new List<Artifact>();
                     storage.Add(userID, newStorage);
                     isLegal = true;
                 }

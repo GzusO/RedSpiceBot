@@ -12,7 +12,7 @@ namespace RedSpiceBot
     {
         public string displayName; // Track the users display name here cause why not
         public int spice;
-        public string[] artifacts;
+        public List<Artifact> artifacts;
 
         public static Dictionary<string, UserStorage> LoadStorage(string path)
         {

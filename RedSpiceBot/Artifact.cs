@@ -6,7 +6,7 @@ using System.IO;
 
 namespace RedSpiceBot
 {
-    class Artifact
+    public class Artifact
     {
         // Rarirty distributions for the shop
         public const int MundaneArtifactsMax = 1;
