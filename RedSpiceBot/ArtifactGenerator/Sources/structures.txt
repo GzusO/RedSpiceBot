@@ -5,11 +5,14 @@
 % a = Adjective (randomly chosen from a list)
 % o = "of"
 % t = "the"
+% d = "and""
 u
 su
 au
 tu
 tau
+udu
+ndn
 sau
 uoa
 uon
@@ -22,3 +25,9 @@ uotu
 tuotu
 sauoa
 sanotu
+uoudu
+noudn
+tudu
+tndn
+sudu
+sudsu

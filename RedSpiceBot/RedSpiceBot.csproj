@@ -137,14 +137,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <Content Include="ArtifactGenerator\Sources\adjectives.txt" />
     <None Include="Config\sample.json" />
     <None Include="Config\config.json" />
     <None Include="packages.config" />
+    <None Include="SpiceStorage\artifactHistory.json" />
     <None Include="SpiceStorage\storage.json" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ArtifactGenerator\Sources\artifacts.txt" />
     <Content Include="ArtifactGenerator\Sources\names.txt" />
+    <Content Include="ArtifactGenerator\Sources\nouns.txt" />
     <Content Include="ArtifactGenerator\Sources\structures.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

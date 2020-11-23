@@ -1,4 +1,10 @@
-﻿namespace RedSpiceBot
+﻿using Newtonsoft.Json;
+using RedSpiceBot.ArtifactGenerator;
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace RedSpiceBot
 {
     class Artifact
     {
@@ -39,20 +45,72 @@
         public const int LegendaryMaxWords = 10;
 
         public string Name { get; set; }
-        public uint ID { get; set; }
+        public int ID { get; set; }
         public ArtifactRarity Rarity { get; set; }
         public int Value { get; set; }
 
         public static string ToString(Artifact artifact)
         {
-            string artifactString = "";
-
-            artifactString += "Artifact: " + artifact.Name + "\n";
-            artifactString += "Artifact ID: " + artifact.ID + "\n";
-            artifactString += "Artifact Rarity: " + artifact.Rarity + "\n";
-            artifactString += "Artifact Value: " + artifact.Value + " Red Spice \n";
+            string artifactString = "Artifact: " + artifact.Name + "\n" +
+                "Artifact ID: " + artifact.ID + "\n" +
+                "Artifact Rarity: " + artifact.Rarity + "\n" +
+                "Artifact Value: " + artifact.Value + " Red Spice \n";
 
             return artifactString;
+        }
+
+        public static string ToChat(Artifact artifact)
+        {
+            string artifactString = artifact.Name + " is a " +
+                artifact.Rarity + " artifact worth " +
+                artifact.Value + " Red Spice.";
+
+            return artifactString;
+        }
+
+        public static List<Artifact> GenerateArticats(out Dictionary<int, Artifact> artifactHistory)
+        {
+            // Set up the artifact generator
+            Random rnd = new Random((int)DateTime.Now.Ticks & 0x0000FFFF);
+            MarkovChainsNameGenerator artifactGenerator = new MarkovChainsNameGenerator(random: rnd, minLength: 2, maxLength: 10, capitalize: false, skipWhitespace: false);
+            artifactGenerator.TrainMapBuilder(@"../../ArtifactGenerator/Sources/structures.txt");
+
+            // Get the history of previous artifacts and set up IDs for new artifacts
+            artifactHistory = LoadHistory();
+            int curID = 0; // By default set the current ID as 0
+            if (artifactHistory != null) { curID = artifactHistory.Count; } // If there is a history, then start ID off of that
+            else { artifactHistory = new Dictionary<int, Artifact>(); }
+
+            // Get a bunch of artifact strings and send them to the parser
+            IEnumerable<string> artifacts = artifactGenerator.GetNames(100); // Generate a bunch of artifacts, the parser will trim it down
+            List<Artifact> newArtifacts = ArtifactParser.ParseArtifacts(new List<string>(artifacts));
+
+            // ID the artifacts and save the new artifacts in the history structure
+            Console.WriteLine("Todays artifacts:");
+            for (int i = 0; i < newArtifacts.Count; i++)
+            {
+                newArtifacts[i].ID = curID + i + 1;
+                artifactHistory[newArtifacts[i].ID] = newArtifacts[i];
+                Console.WriteLine(Artifact.ToString(newArtifacts[i]));
+            }
+            SaveHistory(artifactHistory);
+
+            return newArtifacts;
+        }
+
+        private static Dictionary<int, Artifact> LoadHistory()
+        {
+            using (StreamReader r = new StreamReader(@"../../SpiceStorage/artifactHistory.json"))
+            {
+                string history = r.ReadToEnd();
+                r.Close();
+                return JsonConvert.DeserializeObject<Dictionary<int, Artifact>>(history);
+            }
+        }
+
+        public static void SaveHistory(Dictionary<int, Artifact> history)
+        {
+            File.WriteAllText(@"../../SpiceStorage/artifactHistory.json", JsonConvert.SerializeObject(history));
         }
     }
 

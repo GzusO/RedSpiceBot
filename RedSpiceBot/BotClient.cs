@@ -39,6 +39,7 @@ namespace RedSpiceBot
         private static TwitchAPI botAPI;
         private ConfigInfo configInfo;
         private List<Artifact> curArtifacts;
+        private Dictionary<int, Artifact> prevArtifacts;
 
         #region Chat Strings
         private const string SpiceBotReply = "Buy !RedSpice with channel points! " +
@@ -99,19 +100,8 @@ namespace RedSpiceBot
             botAPI.Settings.ClientId = configInfo.clientID;
             botAPI.Settings.AccessToken = configInfo.accessToken;
 
-            // Set up the artifacts generator and unique name generator
-            MarkovChainsNameGenerator nameGenerator = new MarkovChainsNameGenerator(minLength: 3, maxLength: 7);
-            nameGenerator.TrainMapBuilder(@"../../ArtifactGenerator/Sources/names.txt");
-            MarkovChainsNameGenerator artifactGenerator = new MarkovChainsNameGenerator(minLength: 2, maxLength: 10, capitalize: false, skipWhitespace: false);
-            artifactGenerator.TrainMapBuilder(@"../../ArtifactGenerator/Sources/structures.txt");
-
-            // Get a bunch of artifact strings and send them to the parser
-            IEnumerable<string> artifacts = artifactGenerator.GetNames(100); // Generate a bunch of artifacts, the parser will trim it down
-            curArtifacts = ArtifactParser.ParseArtifacts(new List<string>(artifacts));
-            foreach (Artifact art in curArtifacts)
-            {
-                Console.WriteLine(Artifact.ToString(art));
-            }
+            // Get artifacts and history of artifacts
+            curArtifacts = Artifact.GenerateArticats(out prevArtifacts);
         }
 
         #region Bot Event Handlers

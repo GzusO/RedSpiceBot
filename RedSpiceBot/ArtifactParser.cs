@@ -1,8 +1,7 @@
-﻿using System;
+﻿using RedSpiceBot.ArtifactGenerator;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using WebSocketSharp;
 
 namespace RedSpiceBot
@@ -15,7 +14,6 @@ namespace RedSpiceBot
         {
             List<string> parsedArtifacts = new List<string>();
 
-            Console.WriteLine("Todays artifacts:");
             foreach (string curArtifact in artifacts)
             {
                 string newArtifact = BuildString(curArtifact);
@@ -30,8 +28,8 @@ namespace RedSpiceBot
         private static string BuildString(string curArtifact)
         {
             string newArtifact = "";
-            string artifact = curArtifact.TrimEnd('o', 't'); // Trailing articles should be cut off
-            artifact = artifact.TrimStart('o'); // Don't start with "Of"
+            string artifact = curArtifact.TrimEnd('o', 't', 'd'); // Trailing articles should be cut off
+            artifact = artifact.TrimStart('o', 'd'); // Don't start with "Of" or "And"
 
             // If it's a dud return null
             if (artifact.IsNullOrEmpty()) { return null; }
@@ -51,19 +49,19 @@ namespace RedSpiceBot
                     */
 
                     case 'n':
-                        newArtifact += "NAME";
+                        newArtifact += "<NAME>";
                         break;
 
                     case 's':
-                        newArtifact += "NAME's";
+                        newArtifact += "<NAME>'s";
                         break;
 
                     case 'u':
-                        newArtifact += "NOUN";
+                        newArtifact += "<NOUN>";
                         break;
 
                     case 'a':
-                        newArtifact += "ADJECTIVE";
+                        newArtifact += "<ADJECTIVE>";
                         break;
 
                     case 'o':
@@ -72,6 +70,10 @@ namespace RedSpiceBot
 
                     case 't':
                         newArtifact += "the";
+                        break;
+
+                    case 'd':
+                        newArtifact += "and";
                         break;
 
                     default:
@@ -85,10 +87,66 @@ namespace RedSpiceBot
             newArtifact = newArtifact.Trim();
             newArtifact = Char.ToUpper(newArtifact[0]) + newArtifact.Substring(1);
 
+            newArtifact = FillString(newArtifact);
+
             return newArtifact;
         }
 
-        private static List<Artifact> BuildArtifacts(List<string> parsedArtifacts)
+        private static string FillString(string rawArtifact)
+        {
+            Random rnd = new Random((int)DateTime.Now.Ticks & 0x0000FFFF);
+
+            // Set up the name generator
+            MarkovChainsNameGenerator generator = new MarkovChainsNameGenerator(random: rnd, minLength: 3, maxLength: 7);;
+            generator.TrainMapBuilder(@"../../ArtifactGenerator/Sources/names.txt");
+
+            int index;
+            string line;
+            string curArtifact = rawArtifact;
+            List<string> nouns = new List<string>();
+            List<string> adjectives = new List<string>();
+
+            // Load the lists of nouns and adjectives
+            using (StreamReader r = new StreamReader(@"../../ArtifactGenerator/Sources/nouns.txt"))
+            {
+                while ((line = r.ReadLine()) != null)
+                {
+                    nouns.Add(line);
+                }
+            }
+            using (StreamReader r = new StreamReader(@"../../ArtifactGenerator/Sources/adjectives.txt"))
+            {
+                while ((line = r.ReadLine()) != null)
+                {
+                    adjectives.Add(line);
+                }
+            }
+
+            // Replace all instance of <NAME> with a generated name
+            while ((index = curArtifact.IndexOf("<NAME>")) != -1)
+            {
+                curArtifact = curArtifact.Remove(index, "<NAME>".Length);
+                curArtifact = curArtifact.Insert(index, generator.GetName());
+            }
+
+            // Replace all instance of <NOUN> with a randomly chosen noun
+            while ((index = curArtifact.IndexOf("<NOUN>")) != -1)
+            {
+                curArtifact = curArtifact.Remove(index, "<NOUN>".Length);
+                curArtifact = curArtifact.Insert(index, nouns[rnd.Next(0, nouns.Count)]);
+            }
+
+            // Replace all instance of <ADJECTIVE> with a randomly chosen noun
+            while ((index = curArtifact.IndexOf("<ADJECTIVE>")) != -1)
+            {
+                curArtifact = curArtifact.Remove(index, "<ADJECTIVE>".Length);
+                curArtifact = curArtifact.Insert(index, adjectives[rnd.Next(0, adjectives.Count)]);
+            }
+
+            return curArtifact;
+        }
+
+    private static List<Artifact> BuildArtifacts(List<string> parsedArtifacts)
         {
             List<Artifact> finishedArtifacts = new List<Artifact>();
             Random rnd = new Random((int)DateTime.Now.Ticks & 0x0000FFFF);
