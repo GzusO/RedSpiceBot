@@ -16,6 +16,7 @@ using TwitchLib.Api.Helix.Models.Users;
 using TwitchLib.Api.V5.Models.Subscriptions;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using RedSpiceBot.ArtifactGenerator;
 
 namespace RedSpiceBot
 {
@@ -41,6 +42,9 @@ namespace RedSpiceBot
         private const string commandDataPath = @"./SpiceStorage/commands.json";
         private const string configDataPath = @"./Config/config.json";
         private const string userDataPath = @"./SpiceStorage/storage.json";
+        private List<Artifact> curArtifacts;
+        private Dictionary<int, Artifact> prevArtifacts;
+
         #region Chat Strings
         private const string SpiceBotReply = "Buy !RedSpice with channel points! " +
                         "Check your red spice stores with !MySpice. " +
@@ -79,7 +83,7 @@ namespace RedSpiceBot
             botClient.OnConnected += OnConnected;
             botClient.OnChatCommandReceived += OnChatCommandReceived;
 
-            botClient.Connect();
+            //botClient.Connect();
 
             // PubSub setup
             botPubSub = new TwitchPubSub();
@@ -94,12 +98,15 @@ namespace RedSpiceBot
             botPubSub.ListenToVideoPlayback("Diadonic");
             botPubSub.ListenToRewards("24384880");
 
-            botPubSub.Connect();
+            //botPubSub.Connect();
 
             // API setup
             botAPI = new TwitchAPI();
             botAPI.Settings.ClientId = configInfo.clientID;
             botAPI.Settings.AccessToken = configInfo.accessToken;
+
+            // Get artifacts and history of artifacts
+            curArtifacts = Artifact.GenerateArticats(out prevArtifacts);
         }
 
         #region Bot Event Handlers
@@ -299,6 +306,7 @@ namespace RedSpiceBot
                     UserStorage newStorage = new UserStorage();
                     newStorage.spice = spiceChange;
                     newStorage.displayName = userDisplay;
+                    newStorage.artifacts = new List<string>();
                     storage.Add(userID, newStorage);
                     isLegal = true;
                 }
