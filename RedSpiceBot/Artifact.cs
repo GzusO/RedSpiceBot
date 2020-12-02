@@ -44,6 +44,10 @@ namespace RedSpiceBot
         public const int LegendaryMinWords = 9;
         public const int LegendaryMaxWords = 10;
 
+        // Blacklist for name generation to avoid generating bad thing, cause you never know what this might spit out
+        // Don't be mad at me for typing these it's for a good reason
+        private static readonly string[] blacklist = {"Nigger", "Nigga", "Spic", "Chink", "Faggot", "Dyke", "Retard"};
+
         public string Name { get; set; }
         public int ID { get; set; }
         public ArtifactRarity Rarity { get; set; }
@@ -61,9 +65,8 @@ namespace RedSpiceBot
 
         public static string ToChat(Artifact artifact)
         {
-            string artifactString = artifact.Name + " is a " +
-                artifact.Rarity + " artifact worth " +
-                artifact.Value + " Red Spice.";
+            string artifactString = artifact.Name + "(ID: " + artifact.ID + ") is a " +
+                artifact.Rarity + " artifact worth " + artifact.Value + " Red Spice.";
 
             return artifactString;
         }
@@ -72,7 +75,7 @@ namespace RedSpiceBot
         {
             // Set up the artifact generator
             Random rnd = new Random((int)DateTime.Now.Ticks & 0x0000FFFF);
-            MarkovChainsNameGenerator artifactGenerator = new MarkovChainsNameGenerator(random: rnd, minLength: 2, maxLength: 10, capitalize: false, skipWhitespace: false);
+            MarkovChainsNameGenerator artifactGenerator = new MarkovChainsNameGenerator(random: rnd, minLength: 2, maxLength: 10, capitalize: false, skipWhitespace: false, blacklistedNames: blacklist);
             artifactGenerator.TrainMapBuilder(@"../../ArtifactGenerator/Sources/structures.txt");
 
             // Get the history of previous artifacts and set up IDs for new artifacts

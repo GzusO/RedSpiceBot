@@ -41,7 +41,8 @@ namespace RedSpiceBot
         private Dictionary<string, string> chatCommands;
         private const string commandDataPath = @"./SpiceStorage/commands.json";
         private const string configDataPath = @"./Config/config.json";
-        private const string userDataPath = @"./SpiceStorage/storage.json";
+        private const string userDataPath = @"../../SpiceStorage/storage.json";
+        private Dictionary<string, UserStorage> userStorage;
         private List<Artifact> curArtifacts;
         private Dictionary<int, Artifact> prevArtifacts;
 
@@ -51,9 +52,17 @@ namespace RedSpiceBot
                         "Check other people's spice with !YourSpice <name>.";
         private const string RedSpiceReply = "Earn Red Spice today! " +
                         "Trade it for rare artifacts sometime in the future!";
+
         private const string MySpiceReply = "{0}, you have {1} Red Spice.";
         private const string NoStorageReply = "{0} doesn't have a Red Spice account set up yet. " +
                         "Buy any amount of Red Spice to start your account!";
+
+        private const string ArtifactHelp = "Check current artifacts with !artifacts, buy an artifact " +
+                        "with !artifacts buy <ID>, and check a user's artifacts with !artifacts check <username>.";
+        private const string ArtifactInvalidPurchase = "There is no artifact with an ID of {0} for sale.";
+        private const string ArtifactNotEnoughSpice = "The artifact \"{0}\" costs {1} spice, " +
+                        "{2} only has {3} spice.";
+        private const string ArtifactNoneInAccount = "{0} doesn't own any artifacts!";
         #endregion
 
         public Bot()
@@ -105,7 +114,8 @@ namespace RedSpiceBot
             botAPI.Settings.ClientId = configInfo.clientID;
             botAPI.Settings.AccessToken = configInfo.accessToken;
 
-            // Get artifacts and history of artifacts
+            // Load user storage and artifact history state
+            userStorage = LoadStorage();
             curArtifacts = Artifact.GenerateArticats(out prevArtifacts);
         }
 
@@ -157,13 +167,19 @@ namespace RedSpiceBot
                     }
                     break;
 
+                case "artifacts":
+                    Console.WriteLine("!artifacts command received.");
+                    HandleArtifactChatCommands(e);
+                    break;
+
                 case "modspice": // !modspice <name> <amount>
                     if (!e.Command.ChatMessage.IsModerator || e.Command.ArgumentsAsList.Count != 2) { return; } // Mod-only command to manually fix people's spice
                     Console.WriteLine("!ModSpice command received.");
                     user = await UsernameToUser(e.Command.ArgumentsAsList[0]);
                     if (!Int32.TryParse(e.Command.ArgumentsAsList[1], out int spiceChange)) { return; }
-                    if (user.Matches.Length == 1) { UpdateSpiceStorage(user.Matches[0].Id, user.Matches[0].DisplayName, spiceChange); }
+                    if (user.Matches.Length == 1) { UpdateSpiceStorage(ref userStorage, user.Matches[0].Id, user.Matches[0].DisplayName, spiceChange); }
                     break;
+
                 case "addcommand":
                     if (!(e.Command.ChatMessage.IsModerator || e.Command.ChatMessage.IsBroadcaster) || e.Command.ArgumentsAsList.Count <= 1)
                         return;
@@ -257,7 +273,7 @@ namespace RedSpiceBot
                 {
                     int amount = Int32.Parse(match.Value);
                     TwitchLib.Api.V5.Models.Users.Users user = await UsernameToUser(e.DisplayName);
-                    UpdateSpiceStorage(user.Matches[0].Id, user.Matches[0].DisplayName, amount);
+                    UpdateSpiceStorage(ref userStorage, user.Matches[0].Id, user.Matches[0].DisplayName, amount);
                 }
             }
 
@@ -272,13 +288,10 @@ namespace RedSpiceBot
         #endregion
 
         /*
-         * Updates a users spice amount, returning whether or not the change is legal
-         * Only updates the spice count on a legal request
-         * Probably has race conditions and other weird bugs, but those are future me's problems
+         * Loads a userID-keyed dictionary of storages
          */
-        private bool UpdateSpiceStorage(string userID, string userDisplay, int spiceChange)
+        private Dictionary<string, UserStorage> LoadStorage()
         {
-            bool isLegal = false;
             Dictionary<string, UserStorage> storage = UserStorage.LoadStorage(userDataPath);
 
             // If the storage doesn't exist at all yet, initialize it
@@ -286,6 +299,17 @@ namespace RedSpiceBot
             {
                 storage = new Dictionary<string, UserStorage>();
             }
+
+            return storage;
+        }
+
+        /*
+         * Updates a users spice amount, returning whether or not the change is legal
+         * Only updates the spice count on a legal request
+         */
+        private bool UpdateSpiceStorage(ref Dictionary<string, UserStorage> storage, string userID, string userDisplay, int spiceChange)
+        {
+            bool isLegal = false;
 
             // Update the user's spice count
             UserStorage curStorage;
@@ -312,11 +336,15 @@ namespace RedSpiceBot
                 }
             }
 
-            // Save the changes back to the spice storage
-            // Probably dangerous to do this cause race conditions, should look into a way to prevent that
-            File.WriteAllText(userDataPath, JsonConvert.SerializeObject(storage));
+            // Save the changes back to the spice storage on every change
 
+            SaveSpiceStorage(storage);
             return isLegal;
+        }
+
+        private void SaveSpiceStorage(Dictionary<string, UserStorage> storage)
+        {
+            File.WriteAllText(userDataPath, JsonConvert.SerializeObject(storage));
         }
 
         private void DisplaySpice(string userID, string userDisplay, string channel)
@@ -331,6 +359,115 @@ namespace RedSpiceBot
             {
                 botClient.SendMessage(channel, string.Format(NoStorageReply, userDisplay));
             }
+        }
+
+        /*
+         * Central function to parse through an handle all artifact chat commands
+         * Needs cleanup/modularization but I can't be bothered to do that right now
+         */
+        private void HandleArtifactChatCommands(OnChatCommandReceivedArgs e)
+        {
+            if (e.Command.ArgumentsAsList.Count == 0) // No arguments just sends a list of current artifacts for sale
+            {
+                foreach (Artifact art in curArtifacts)
+                {
+                    botClient.SendMessage(e.Command.ChatMessage.Channel, Artifact.ToChat(art));
+                }
+            }
+
+            if (e.Command.ArgumentsAsList.Count == 1 && e.Command.ArgumentsAsList[0].ToLower() == "help") // !artifacts help
+            {
+                    botClient.SendMessage(e.Command.ChatMessage.Channel, ArtifactHelp);
+            }
+
+            if (e.Command.ArgumentsAsList.Count == 2 && e.Command.ArgumentsAsList[0].ToLower() == "buy") // !artifacts buy <ID>
+            {
+                // Check if the ID they are trying to buy is valid
+                bool isValid = false;
+                int index = 0;
+                for (int i = 0; i < curArtifacts.Count; i++)
+                {
+                    if (!Int32.TryParse(e.Command.ArgumentsAsList[1], out int artID)) { break; } // if the input ID isn't even an int don't try to find it
+                    if (curArtifacts[i].ID == artID)
+                    { 
+                        // If the ID is a valid int and matches an artifact for sale set the valid flag and stop searching
+                        isValid = true;
+                        index = i;
+                        break;
+                    } 
+                }
+
+                // Response for invalid ID
+                if (!isValid) 
+                { 
+                    botClient.SendMessage(e.Command.ChatMessage.Channel, string.Format(ArtifactInvalidPurchase, e.Command.ArgumentsAsList[1]));
+                    return;
+                }
+
+                // Check first if the user even has a spice account
+                if (!userStorage.TryGetValue(e.Command.ChatMessage.UserId, out UserStorage storage)) 
+                {
+                    botClient.SendMessage(e.Command.ChatMessage.Channel, NoStorageReply);
+                    return;
+                }
+
+                // If everything checks out, attempt to make the transaction
+                if (curArtifacts[index].Value <= storage.spice) // If has enough spice to buy the artifact
+                {
+                    // Update the user's new spice amount and add the artifact to their list
+                    UpdateSpiceStorage(ref userStorage, e.Command.ChatMessage.UserId, e.Command.ChatMessage.DisplayName, -curArtifacts[index].Value);
+                    AddArtifact(ref userStorage, e.Command.ChatMessage.UserId, curArtifacts[index]);
+                }
+                else
+                {
+                    // Shame the user for trying to buy an artifact they can't afford
+                    botClient.SendMessage(e.Command.ChatMessage.Channel, string.Format(
+                        ArtifactNotEnoughSpice,
+                        curArtifacts[index].Name,
+                        curArtifacts[index].Value,
+                        e.Command.ChatMessage.DisplayName,
+                        storage.spice));
+                }
+            }
+
+            if (e.Command.ArgumentsAsList.Count == 2 && e.Command.ArgumentsAsList[0].ToLower() == "check") // !artifacts check <username>
+            {
+                // Check if the user has a spice account
+                if (!userStorage.TryGetValue(e.Command.ChatMessage.UserId, out UserStorage storage))
+                {
+                    botClient.SendMessage(e.Command.ChatMessage.Channel, string.Format(NoStorageReply, e.Command.ChatMessage.DisplayName));
+                    return;
+                }
+
+                // Check if the user has any artifacts
+                if (storage.artifacts.Count == 0)
+                {
+                    botClient.SendMessage(e.Command.ChatMessage.Channel, string.Format(
+                        ArtifactNoneInAccount,
+                        e.Command.ChatMessage.DisplayName));
+                    return;
+                }
+
+                foreach (Artifact art in storage.artifacts)
+                {
+                    botClient.SendMessage(e.Command.ChatMessage.Channel, Artifact.ToChat(art));
+                }
+            }
+        }
+
+        private void AddArtifact(ref Dictionary<string, UserStorage> storage, string userID, Artifact newArtifact)
+        {
+            // Get the user's personal storage
+            if (!storage.TryGetValue(userID, out UserStorage personalStorage))
+            {
+                Console.WriteLine($"Could not find a spice account for user ID: {userID}, failed to add artifact to storage");
+                return;
+            }
+
+            // Add the new artifact and save to file
+            personalStorage.artifacts.Add(newArtifact);
+            storage[userID] = personalStorage;
+            SaveSpiceStorage(storage);
         }
     }
 }
