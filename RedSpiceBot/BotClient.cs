@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Timers;
+using TwitchLib.Api;
 using TwitchLib.Client;
 using TwitchLib.Client.Enums;
 using TwitchLib.Client.Events;
@@ -11,12 +14,6 @@ using TwitchLib.Communication.Clients;
 using TwitchLib.Communication.Models;
 using TwitchLib.PubSub;
 using TwitchLib.PubSub.Events;
-using TwitchLib.Api;
-using TwitchLib.Api.Helix.Models.Users;
-using TwitchLib.Api.V5.Models.Subscriptions;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
-using RedSpiceBot.ArtifactGenerator;
 
 namespace RedSpiceBot
 {
@@ -38,18 +35,23 @@ namespace RedSpiceBot
         private TwitchPubSub botPubSub;
         private static TwitchAPI botAPI;
         private ConfigInfo configInfo;
+
         private Dictionary<string, string> chatCommands;
         private const string commandDataPath = @"./SpiceStorage/commands.json";
         private const string configDataPath = @"./Config/config.json";
         private const string userDataPath = @"../../SpiceStorage/storage.json";
+
         private Dictionary<string, UserStorage> userStorage;
         private List<Artifact> curArtifacts;
         private Dictionary<int, Artifact> prevArtifacts;
+        private bool ArtifactDisplayCooldown = false;
+        private  System.Timers.Timer ArtifactCooldownTimer = new System.Timers.Timer(30 * 1000); // Change this to alter the cooldown timer
 
         #region Chat Strings
         private const string SpiceBotReply = "Buy !RedSpice with channel points! " +
                         "Check your red spice stores with !MySpice. " +
-                        "Check other people's spice with !YourSpice <name>.";
+                        "Check other people's spice with !YourSpice <name>. " +
+                        "You can also buy !artifacts, using !artifacts help for more commands.";
         private const string RedSpiceReply = "Earn Red Spice today! " +
                         "Trade it for rare artifacts sometime in the future!";
 
@@ -60,6 +62,7 @@ namespace RedSpiceBot
         private const string ArtifactHelp = "Check current artifacts with !artifacts, buy an artifact " +
                         "with !artifacts buy <ID>, and check a user's artifacts with !artifacts check <username>.";
         private const string ArtifactInvalidPurchase = "There is no artifact with an ID of {0} for sale.";
+        private const string ArtifactInvalid = "There is no artifact with an ID of {0}.";
         private const string ArtifactNotEnoughSpice = "The artifact \"{0}\" costs {1} spice, " +
                         "{2} only has {3} spice.";
         private const string ArtifactNoneInAccount = "{0} doesn't own any artifacts!";
@@ -117,6 +120,15 @@ namespace RedSpiceBot
             // Load user storage and artifact history state
             userStorage = LoadStorage();
             curArtifacts = Artifact.GenerateArticats(out prevArtifacts);
+            if (userStorage == null)
+			{
+                userStorage = new Dictionary<string, UserStorage>();
+
+            }
+
+            // Set up timer callback
+            ArtifactCooldownTimer.Elapsed += ResetArtifactCooldown;
+            ArtifactCooldownTimer.AutoReset = false;
         }
 
         #region Bot Event Handlers
@@ -365,14 +377,20 @@ namespace RedSpiceBot
          * Central function to parse through an handle all artifact chat commands
          * Needs cleanup/modularization but I can't be bothered to do that right now
          */
-        private void HandleArtifactChatCommands(OnChatCommandReceivedArgs e)
+        private async void HandleArtifactChatCommands(OnChatCommandReceivedArgs e)
         {
             if (e.Command.ArgumentsAsList.Count == 0) // No arguments just sends a list of current artifacts for sale
             {
+                if (ArtifactDisplayCooldown) { return; } // Ignore this command while on cooldown
+
                 foreach (Artifact art in curArtifacts)
                 {
                     botClient.SendMessage(e.Command.ChatMessage.Channel, Artifact.ToChat(art));
                 }
+
+                // Have this on an arbitrary 30 second cooldown to avoid chat spam
+                ArtifactDisplayCooldown = true;
+                ArtifactCooldownTimer.Start();
             }
 
             if (e.Command.ArgumentsAsList.Count == 1 && e.Command.ArgumentsAsList[0].ToLower() == "help") // !artifacts help
@@ -417,6 +435,7 @@ namespace RedSpiceBot
                     // Update the user's new spice amount and add the artifact to their list
                     UpdateSpiceStorage(ref userStorage, e.Command.ChatMessage.UserId, e.Command.ChatMessage.DisplayName, -curArtifacts[index].Value);
                     AddArtifact(ref userStorage, e.Command.ChatMessage.UserId, curArtifacts[index]);
+                    Artifact.SaveToHistory(curArtifacts[index]);
                 }
                 else
                 {
@@ -432,10 +451,11 @@ namespace RedSpiceBot
 
             if (e.Command.ArgumentsAsList.Count == 2 && e.Command.ArgumentsAsList[0].ToLower() == "check") // !artifacts check <username>
             {
-                // Check if the user has a spice account
-                if (!userStorage.TryGetValue(e.Command.ChatMessage.UserId, out UserStorage storage))
+                // Check if the user being checked has a spice account
+                TwitchLib.Api.V5.Models.Users.Users user = await UsernameToUser(e.Command.ArgumentsAsList[1]);
+                if (!userStorage.TryGetValue(user.Matches[0].Id, out UserStorage storage))
                 {
-                    botClient.SendMessage(e.Command.ChatMessage.Channel, string.Format(NoStorageReply, e.Command.ChatMessage.DisplayName));
+                    botClient.SendMessage(e.Command.ChatMessage.Channel, string.Format(NoStorageReply, e.Command.ArgumentsAsList[1]));
                     return;
                 }
 
@@ -444,13 +464,31 @@ namespace RedSpiceBot
                 {
                     botClient.SendMessage(e.Command.ChatMessage.Channel, string.Format(
                         ArtifactNoneInAccount,
-                        e.Command.ChatMessage.DisplayName));
+                        e.Command.ArgumentsAsList[1]));
                     return;
                 }
 
                 foreach (Artifact art in storage.artifacts)
                 {
                     botClient.SendMessage(e.Command.ChatMessage.Channel, Artifact.ToChat(art));
+                }
+            }
+
+            if (e.Command.ArgumentsAsList.Count == 2 && e.Command.ArgumentsAsList[0].ToLower() == "history") // !artifacts history <ID>
+            {
+                // If the ID is valid send the artifact
+                if (Int32.TryParse(e.Command.ArgumentsAsList[1], out int artID) &&
+                    prevArtifacts.TryGetValue(artID, out Artifact art)) 
+                {
+                    botClient.SendMessage(e.Command.ChatMessage.Channel, Artifact.ToChat(art));
+                }
+                else
+                {
+                    // If the ID is invalid/artifact doesn't exist then send an error and exit
+                    botClient.SendMessage(e.Command.ChatMessage.Channel, string.Format(
+                        ArtifactInvalid,
+                        artID));
+                    return; 
                 }
             }
         }
@@ -468,6 +506,11 @@ namespace RedSpiceBot
             personalStorage.artifacts.Add(newArtifact);
             storage[userID] = personalStorage;
             SaveSpiceStorage(storage);
+        }
+
+        private void ResetArtifactCooldown(Object source, ElapsedEventArgs e)
+        {
+            ArtifactDisplayCooldown = false;
         }
     }
 }

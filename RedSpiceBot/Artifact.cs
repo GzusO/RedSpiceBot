@@ -65,7 +65,7 @@ namespace RedSpiceBot
 
         public static string ToChat(Artifact artifact)
         {
-            string artifactString = artifact.Name + "(ID: " + artifact.ID + ") is a " +
+            string artifactString = artifact.Name + " (ID: " + artifact.ID + ") is a " +
                 artifact.Rarity + " artifact worth " + artifact.Value + " Red Spice.";
 
             return artifactString;
@@ -81,7 +81,7 @@ namespace RedSpiceBot
             // Get the history of previous artifacts and set up IDs for new artifacts
             artifactHistory = LoadHistory();
             int curID = 0; // By default set the current ID as 0
-            if (artifactHistory != null) { curID = artifactHistory.Count; } // If there is a history, then start ID off of that
+            if (artifactHistory != null) { curID = artifactHistory[artifactHistory.Count - 1].ID + 1; } // If there is a history, then start ID off of that
             else { artifactHistory = new Dictionary<int, Artifact>(); }
 
             // Get a bunch of artifact strings and send them to the parser
@@ -96,8 +96,6 @@ namespace RedSpiceBot
                 artifactHistory[newArtifacts[i].ID] = newArtifacts[i];
                 Console.WriteLine(Artifact.ToString(newArtifacts[i]));
             }
-            SaveHistory(artifactHistory);
-
             return newArtifacts;
         }
 
@@ -111,9 +109,15 @@ namespace RedSpiceBot
             }
         }
 
-        public static void SaveHistory(Dictionary<int, Artifact> history)
+        public static void SaveToHistory(Artifact art)
         {
-            File.WriteAllText(@"../../SpiceStorage/artifactHistory.json", JsonConvert.SerializeObject(history));
+            // If the artifact is not already in the history save it
+            Dictionary<int, Artifact> history = LoadHistory();
+            if (!history.ContainsKey(art.ID))
+			{
+                history.Add(art.ID, art);
+                File.WriteAllText(@"../../SpiceStorage/artifactHistory.json", JsonConvert.SerializeObject(history));
+            }         
         }
     }
 
