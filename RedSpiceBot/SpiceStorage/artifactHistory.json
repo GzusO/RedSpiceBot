@@ -4,5 +4,17 @@
 		"ID": 8,
 		"Rarity": 0,
 		"Value": 2
+	},
+	"16": {
+		"Name": "The Traffic",
+		"ID": 16,
+		"Rarity": 1,
+		"Value": 9
+	},
+	"12": {
+		"Name": "Lucky Brother",
+		"ID": 12,
+		"Rarity": 1,
+		"Value": 10
 	}
 }

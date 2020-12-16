@@ -66,6 +66,9 @@ namespace RedSpiceBot
         private const string ArtifactNotEnoughSpice = "The artifact \"{0}\" costs {1} spice, " +
                         "{2} only has {3} spice.";
         private const string ArtifactNoneInAccount = "{0} doesn't own any artifacts!";
+        private const string ArtifactBought = "{0} bought {1} for {2} Red Spice!";
+        private const string ArtifactUserNotFound = "User {0} not found.";
+
         #endregion
 
         public Bot()
@@ -436,6 +439,11 @@ namespace RedSpiceBot
                     UpdateSpiceStorage(ref userStorage, e.Command.ChatMessage.UserId, e.Command.ChatMessage.DisplayName, -curArtifacts[index].Value);
                     AddArtifact(ref userStorage, e.Command.ChatMessage.UserId, curArtifacts[index]);
                     Artifact.SaveToHistory(curArtifacts[index]);
+                    botClient.SendMessage(e.Command.ChatMessage.Channel, 
+                        string.Format(ArtifactBought, 
+                        e.Command.ArgumentsAsList[1], 
+                        curArtifacts[index].Name, 
+                        curArtifacts[index].Value));
                 }
                 else
                 {
@@ -449,13 +457,38 @@ namespace RedSpiceBot
                 }
             }
 
-            if (e.Command.ArgumentsAsList.Count == 2 && e.Command.ArgumentsAsList[0].ToLower() == "check") // !artifacts check <username>
+            if ((e.Command.ArgumentsAsList.Count == 1 || e.Command.ArgumentsAsList.Count == 2) && 
+                e.Command.ArgumentsAsList[0].ToLower() == "check") // !artifacts check <username>
             {
                 // Check if the user being checked has a spice account
-                TwitchLib.Api.V5.Models.Users.Users user = await UsernameToUser(e.Command.ArgumentsAsList[1]);
-                if (!userStorage.TryGetValue(user.Matches[0].Id, out UserStorage storage))
+                string userName = "";
+                string userID = "";
+
+                // If the command has a user argument check to see if that user exists
+                if (e.Command.ArgumentsAsList.Count == 2)
+				{
+                    try
+                    {
+                        TwitchLib.Api.V5.Models.Users.Users users = await UsernameToUser(e.Command.ArgumentsAsList[1]);
+                        userName = users.Matches[0].Name;
+                        userID = users.Matches[0].Id;
+                    }
+                    catch
+                    {
+                        botClient.SendMessage(e.Command.ChatMessage.Channel, string.Format(ArtifactUserNotFound, e.Command.ArgumentsAsList[1]));
+                        return;
+                    }
+                }
+                else // Otherwise set the user as the caller
+				{
+                    userName = e.Command.ChatMessage.DisplayName;
+                    userID = e.Command.ChatMessage.UserId;
+                }
+                
+                
+                if (!userStorage.TryGetValue(userID, out UserStorage storage))
                 {
-                    botClient.SendMessage(e.Command.ChatMessage.Channel, string.Format(NoStorageReply, e.Command.ArgumentsAsList[1]));
+                    botClient.SendMessage(e.Command.ChatMessage.Channel, string.Format(NoStorageReply, userName));
                     return;
                 }
 
@@ -464,7 +497,7 @@ namespace RedSpiceBot
                 {
                     botClient.SendMessage(e.Command.ChatMessage.Channel, string.Format(
                         ArtifactNoneInAccount,
-                        e.Command.ArgumentsAsList[1]));
+                        userName));
                     return;
                 }
 

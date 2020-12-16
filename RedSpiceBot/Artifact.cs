@@ -80,8 +80,10 @@ namespace RedSpiceBot
 
             // Get the history of previous artifacts and set up IDs for new artifacts
             artifactHistory = LoadHistory();
+            int[] histKeys = new int[artifactHistory.Count];
+            artifactHistory.Keys.CopyTo(histKeys, 0);
             int curID = 0; // By default set the current ID as 0
-            if (artifactHistory != null) { curID = artifactHistory[artifactHistory.Count - 1].ID + 1; } // If there is a history, then start ID off of that
+            if (artifactHistory != null) { curID = histKeys[histKeys.Length - 1]; } // If there is a history, then start ID off of that
             else { artifactHistory = new Dictionary<int, Artifact>(); }
 
             // Get a bunch of artifact strings and send them to the parser
